@@ -8,12 +8,10 @@ extern crate test;
 
 use serde_derive::{Deserialize, Serialize};
 use std::{
-    hash::{Hash, Hasher},
+    hash::{BuildHasher, Hash, Hasher},
     iter::Iterator,
     num::NonZeroU64,
 };
-
-mod stable_hasher;
 
 /// Base Bloom Filter
 #[derive(Deserialize, Serialize, PartialEq, Clone, Debug)]
@@ -171,7 +169,7 @@ impl Bloom {
 /// See https://en.wikipedia.org/wiki/Double_hashing#Enhanced_double_hashing for details.
 #[inline]
 fn double_hashing_hashes<T: Hash>(item: T) -> (u64, u64) {
-    let mut hasher = stable_hasher::StableHasher::new();
+    let mut hasher = ahash::RandomState::with_seeds(0, 1, 2, 3).build_hasher();
     item.hash(&mut hasher);
     let h1 = hasher.finish();
 
